@@ -1,7 +1,9 @@
 package logger
 
-import "log"
+import "go.uber.org/zap"
 
-func Info(msg string) {
-	log.Println("[INFO]", msg)
+var Log *zap.Logger
+
+func Init() {
+	Log, _ = zap.NewProduction()
 }
