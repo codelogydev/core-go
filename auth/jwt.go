@@ -3,10 +3,11 @@ package auth
 import (
 	"time"
 
+	"github.com/codelogydev/core-go/config"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var secret = []byte("CHANGE_ME")
+var secret = []byte(config.GetEnv("JWT_SECRET", "secret"))
 
 func GenerateToken(userID int) (string, error) {
 	claims := jwt.MapClaims{
