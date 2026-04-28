@@ -17,7 +17,7 @@ Reusable core library for Go backend services.
 ## 📦 Installation
 
 ```bash
-go get github.com/codelogydev/core-go@v1.0.3
+go get github.com/codelogydev/core-go@v1.0.4
 ```
 
 ## 🛠 Usage
@@ -111,6 +111,35 @@ cache.Delete(ctx, "key")
 exists, err := cache.Exists(ctx, "key")
 ```
 
+### Storage (S3 / MinIO)
+
+```go
+import (
+    "context"
+    "time"
+    "github.com/codelogydev/core-go/storage"
+)
+
+storage.Init(
+    os.Getenv("STORAGE_ENDPOINT"),
+    os.Getenv("STORAGE_ACCESS_KEY"),
+    os.Getenv("STORAGE_SECRET_KEY"),
+    os.Getenv("STORAGE_USE_SSL") == "true",
+)
+
+storage.EnsureBucket(ctx, "my-bucket", "ap-southeast-1")
+
+storage.Upload(ctx, "my-bucket", "uploads/photo.jpg", "/tmp/photo.jpg", "image/jpeg")
+
+storage.UploadReader(ctx, "my-bucket", "uploads/photo.jpg", r.Body, r.ContentLength, "image/jpeg")
+
+url, err := storage.GetURL(ctx, "my-bucket", "uploads/photo.jpg", 24*time.Hour)
+
+storage.Delete(ctx, "my-bucket", "uploads/photo.jpg")
+
+exists, err := storage.Exists(ctx, "my-bucket", "uploads/photo.jpg")
+```
+
 ## 📁 Project Structure
 
 ```
@@ -120,6 +149,8 @@ core-go/
 │   └── helper.go
 ├── cache/
 │   └── redis.go
+├── storage/
+│   └── minio.go
 ├── middleware/
 │   ├── auth.go
 │   ├── logger.go
@@ -138,3 +169,7 @@ core-go/
 |---|---|---|
 | `JWT_SECRET` | Secret key for JWT signing | `secret` |
 | `REDIS_URL` | Redis connection URL | `redis://localhost:6379/0` |
+| `STORAGE_ENDPOINT` | S3/MinIO endpoint | `localhost:9000` |
+| `STORAGE_ACCESS_KEY` | Access key | - |
+| `STORAGE_SECRET_KEY` | Secret key | - |
+| `STORAGE_USE_SSL` | Use HTTPS | `false` |
