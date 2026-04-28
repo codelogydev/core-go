@@ -8,8 +8,13 @@ Reusable core library for Go backend services.
 - Auth Middleware (Gin)
 - Logger Middleware (Zap structured logging)
 - Recovery Middleware (panic handler)
+- Rate Limiter Middleware (per-IP, token bucket)
 - Standard API Response (success, error, helpers)
 - Structured Logger (Zap)
+- Redis Cache (Set, Get, Delete, Exists)
+- Storage (S3 / MinIO — Upload, GetURL, Delete)
+- Mailer (SMTP transactional email)
+- Pagination (Params, Meta, Response)
 - Environment Config Helper
 
 ---
@@ -17,7 +22,7 @@ Reusable core library for Go backend services.
 ## 📦 Installation
 
 ```bash
-go get github.com/codelogydev/core-go@v1.0.4
+go get github.com/codelogydev/core-go@v1.0.5
 ```
 
 ## 🛠 Usage
@@ -140,6 +145,49 @@ storage.Delete(ctx, "my-bucket", "uploads/photo.jpg")
 exists, err := storage.Exists(ctx, "my-bucket", "uploads/photo.jpg")
 ```
 
+### Rate Limiter
+
+```go
+import "github.com/codelogydev/core-go/ratelimit"
+
+r := gin.New()
+r.Use(ratelimit.New(10, 20))
+
+api := r.Group("/api")
+api.Use(ratelimit.New(5, 10))
+```
+
+### Pagination
+
+```go
+import "github.com/codelogydev/core-go/pagination"
+
+func GetUsers(c *gin.Context) {
+    var params pagination.Params
+    c.ShouldBindQuery(&params)
+    params.Normalize()
+
+    users, total, _ := service.GetUsers(params.Offset(), params.Limit)
+    response.Success(c, pagination.NewResponse(users, total, params))
+}
+```
+
+### Mailer
+
+```go
+import "github.com/codelogydev/core-go/mailer"
+
+mailer.Init(mailer.Config{
+    Host:     os.Getenv("MAIL_HOST"),
+    Port:     587,
+    Username: os.Getenv("MAIL_USERNAME"),
+    Password: os.Getenv("MAIL_PASSWORD"),
+    From:     os.Getenv("MAIL_FROM"),
+})
+
+mailer.Send("user@example.com", "OTP Code", "<h1>Your OTP: 123456</h1>")
+```
+
 ## 📁 Project Structure
 
 ```
@@ -151,6 +199,12 @@ core-go/
 │   └── redis.go
 ├── storage/
 │   └── minio.go
+├── mailer/
+│   └── mailer.go
+├── ratelimit/
+│   └── ratelimit.go
+├── pagination/
+│   └── pagination.go
 ├── middleware/
 │   ├── auth.go
 │   ├── logger.go
@@ -173,3 +227,8 @@ core-go/
 | `STORAGE_ACCESS_KEY` | Access key | - |
 | `STORAGE_SECRET_KEY` | Secret key | - |
 | `STORAGE_USE_SSL` | Use HTTPS | `false` |
+| `MAIL_HOST` | SMTP host | - |
+| `MAIL_PORT` | SMTP port | `587` |
+| `MAIL_USERNAME` | SMTP username | - |
+| `MAIL_PASSWORD` | SMTP password | - |
+| `MAIL_FROM` | Sender email address | - |
