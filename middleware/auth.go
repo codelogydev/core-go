@@ -1,20 +1,25 @@
 package middleware
 
 import (
+	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/codelogydev/core-go/auth"
-	"github.com/codelogydev/core-go/response"
 )
+
+type errorBody struct {
+	Success bool   `json:"success"`
+	Error   string `json:"error"`
+}
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := c.GetHeader("Authorization")
 
 		if header == "" {
-			response.Unauthorized(c, "missing token")
+			c.JSON(http.StatusUnauthorized, errorBody{Success: false, Error: "missing token"})
 			c.Abort()
 			return
 		}
@@ -23,7 +28,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		userID, err := auth.ValidateToken(token)
 		if err != nil {
-			response.Unauthorized(c, "invalid token")
+			c.JSON(http.StatusUnauthorized, errorBody{Success: false, Error: "invalid token"})
 			c.Abort()
 			return
 		}

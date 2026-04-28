@@ -1,13 +1,13 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
+	"net/http"
 
-	"github.com/codelogydev/core-go/response"
+	"github.com/gin-gonic/gin"
 )
 
 func Recovery() gin.HandlerFunc {
 	return gin.CustomRecovery(func(c *gin.Context, _ any) {
-		response.Error(c, 500, "internal server error")
+		c.JSON(http.StatusInternalServerError, errorBody{Success: false, Error: "internal server error"})
 	})
 }
