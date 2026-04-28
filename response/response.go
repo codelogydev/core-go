@@ -13,17 +13,26 @@ type ErrorResponse struct {
 }
 
 func Success(c *gin.Context, data interface{}) {
-	res := SuccessResponse{
-		Success: true,
-		Data:    data,
-	}
-	c.JSON(200, res)
+	c.JSON(200, SuccessResponse{Success: true, Data: data})
 }
 
 func Error(c *gin.Context, code int, message string) {
-	res := ErrorResponse{
-		Success: false,
-		Error:   message,
-	}
-	c.JSON(code, res)
+	c.JSON(code, ErrorResponse{Success: false, Error: message})
 }
+
+func BadRequest(c *gin.Context, message string) {
+	Error(c, 400, message)
+}
+
+func Unauthorized(c *gin.Context, message string) {
+	Error(c, 401, message)
+}
+
+func Forbidden(c *gin.Context, message string) {
+	Error(c, 403, message)
+}
+
+func NotFound(c *gin.Context, message string) {
+	Error(c, 404, message)
+}
+

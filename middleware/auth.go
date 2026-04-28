@@ -1,11 +1,12 @@
 package middleware
 
 import (
-	"net/http"
 	"strings"
 
-	"github.com/codelogydev/core-go/auth"
 	"github.com/gin-gonic/gin"
+
+	"github.com/codelogydev/core-go/auth"
+	"github.com/codelogydev/core-go/response"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
@@ -13,7 +14,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		header := c.GetHeader("Authorization")
 
 		if header == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
+			response.Unauthorized(c, "missing token")
 			c.Abort()
 			return
 		}
@@ -22,7 +23,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		userID, err := auth.ValidateToken(token)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+			response.Unauthorized(c, "invalid token")
 			c.Abort()
 			return
 		}
