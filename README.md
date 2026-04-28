@@ -17,7 +17,7 @@ Reusable core library for Go backend services.
 ## 📦 Installation
 
 ```bash
-go get github.com/codelogydev/core-go@v1.0.1
+go get github.com/codelogydev/core-go@v1.0.3
 ```
 
 ## 🛠 Usage
@@ -89,6 +89,28 @@ response.Forbidden(c, "access denied")
 response.NotFound(c, "resource not found")
 ```
 
+### Cache (Redis)
+
+```go
+import (
+    "context"
+    "time"
+    "github.com/codelogydev/core-go/cache"
+)
+
+if err := cache.Init(os.Getenv("REDIS_URL")); err != nil {
+    logger.Log.Warn("redis unavailable", zap.Error(err))
+}
+
+cache.Set(ctx, "key", "value", 10*time.Minute)
+
+val, err := cache.Get(ctx, "key")
+
+cache.Delete(ctx, "key")
+
+exists, err := cache.Exists(ctx, "key")
+```
+
 ## 📁 Project Structure
 
 ```
@@ -96,6 +118,8 @@ core-go/
 ├── auth/
 │   ├── jwt.go
 │   └── helper.go
+├── cache/
+│   └── redis.go
 ├── middleware/
 │   ├── auth.go
 │   ├── logger.go
@@ -113,3 +137,4 @@ core-go/
 | Key | Description | Default |
 |---|---|---|
 | `JWT_SECRET` | Secret key for JWT signing | `secret` |
+| `REDIS_URL` | Redis connection URL | `redis://localhost:6379/0` |
