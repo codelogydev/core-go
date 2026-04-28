@@ -2,16 +2,28 @@ package response
 
 import "github.com/gin-gonic/gin"
 
+type SuccessResponse struct {
+	Success bool        `json:"success"`
+	Data    interface{} `json:"data"`
+}
+
+type ErrorResponse struct {
+	Success bool   `json:"success"`
+	Error   string `json:"error"`
+}
+
 func Success(c *gin.Context, data interface{}) {
-	c.JSON(200, gin.H{
-		"success": true,
-		"data":    data,
-	})
+	res := SuccessResponse{
+		Success: true,
+		Data:    data,
+	}
+	c.JSON(200, res)
 }
 
 func Error(c *gin.Context, code int, message string) {
-	c.JSON(code, gin.H{
-		"success": false,
-		"error":   message,
-	})
+	res := ErrorResponse{
+		Success: false,
+		Error:   message,
+	}
+	c.JSON(code, res)
 }
